@@ -53,6 +53,7 @@ def prepare_missing_duedate_email_message(issue, assignees):
         for assignee in assignees:
             _assignees += f'@{assignee["name"]} '
             mail_to.append(assignee['email'])
+        #mail_to.append('silettog@gmail.com'])
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
 
