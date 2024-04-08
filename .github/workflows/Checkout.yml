@@ -1,4 +1,7 @@
-- uses: actions/checkout@v4
+on:
+  workflow_dispatch:
+  
+  - uses: actions/checkout@v4
   with:
     # Repository name with owner. For example, actions/checkout
     # Default: ${{ github.repository }}
