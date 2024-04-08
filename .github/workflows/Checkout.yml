@@ -1,3 +1,4 @@
+name: checkout
 on:
   workflow_dispatch:
   
