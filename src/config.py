@@ -28,3 +28,5 @@ if notification_type == 'email':
     smtp_username = os.environ['INPUT_SMTP_USERNAME']
     smtp_password = os.environ['INPUT_SMTP_PASSWORD']
     smtp_from_email = os.environ['INPUT_SMTP_FROM_EMAIL']
+    mail_aggiuntive = os.environ['INPUT_MAIL_AGGIUNTIVE']
+    preavviso = os.environ['INPUT_PREAVVISO']
