@@ -17,6 +17,9 @@ def prepare_missing_duedate_comment(issue: dict, assignees: dict):
             comment += f'@{assignee["login"]} '
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
+        #################
+        # qui bisogna aggiungere l'invio di una mail per avvisare il resp del progetto (o del repo??) che manca l'assegnee!!!!!!!!!!!!!!!!
+        #################
 
     comment += f'Kindly set the `Due Date` for this issue.'
     logger.info(f'Issue {issue["title"]} | {comment}')
