@@ -85,9 +85,9 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate):
         logger.info(f'MAIL A: {mail_to}')
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
-
+    #####################################   MESSAGGIO   ######################### ho aggiunto  {issue["title"]} 
     message = f'Assignees: {_assignees}' \
-              f'<br>La issue deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}' \
+              f'<br>La issue {issue["title"]} deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}' \
               f'<br><br>{issue["url"]}'
 
     return [subject, message, mail_to]
