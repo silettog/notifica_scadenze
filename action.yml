@@ -53,6 +53,9 @@ inputs:
   smtp_from_email:
     description: "The mail from email address"
     required: false
-  mail_aggiuntiva:
+  mail_aggiuntive:
     description: "alcune mail aggiuntive a cui spedire l'alert"
     required: false
+  giorni_preavviso:
+    description: "giorni prima della scadenza (due date) quando mandare il preavviso"
+    required: true
