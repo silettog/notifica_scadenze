@@ -103,7 +103,7 @@ def send_email(from_email: str, to_email: list, subject: str, html_body: str):
     message['To'] = ", ".join(to_email)
     ###################################message['To'] = ", ".join(config.mail_aggiuntive)
     logger.info(f'MAIL A-to_email: {mail_to}')
-    logger.info(f'MESSAGE-TO:  {message['To']}')
+    logger.info(f'MESSAGE-TO:  {to_email}')
     logger.info(f'MAIL AGGIUNTIVE:  {config.mail_aggiuntive}')
     message['Subject'] = subject
 
