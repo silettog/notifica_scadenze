@@ -54,7 +54,7 @@ def prepare_missing_duedate_email_message(issue, assignees, mail_aggiuntive):
             _assignees += f'@{assignee["name"]} '
             mail_to.append(assignee['email'])
         #mail_to.append(mail_aggiuntive)
-        mail_to.append('silettog@gmail.com')
+        #mail_to.append('silettog@gmail.com')
         #############################################################################', '.join(family)
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
@@ -77,8 +77,9 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate, mail_aggiunt
         for assignee in assignees:
             _assignees += f'@{assignee["name"]} '
             mail_to.append(assignee['email'])
-        mail_to.append('silettog@gmail.com')
+        #mail_to.append('silettog@gmail.com')
         #mail_to.append(mail_aggiuntive)
+        print(mail_to)
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
 
