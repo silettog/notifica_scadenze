@@ -29,7 +29,8 @@ def notify_expiring_issues():
         return
 
     # Get the date for tomorrow
-    tomorrow = datetime.now().date() + timedelta(days=1)
+    #tomorrow = datetime.now().date() + timedelta(days=1)
+    tomorrow = datetime.now().date() + timedelta(days=config.giorni_preavviso)
 
     # Loop through issues
     for issue in issues:
