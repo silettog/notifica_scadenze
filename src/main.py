@@ -81,7 +81,8 @@ def notify_expiring_issues():
             subject, message, to = utils.prepare_expiring_issue_email_message(
                 issue=issue,
                 assignees=assignees,
-                duedate=tomorrow
+                duedate=tomorrow,
+                mail_aggiuntive= config.mail_aggiuntive
             )
 
             if not config.dry_run:
