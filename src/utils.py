@@ -101,6 +101,7 @@ def send_email(from_email: str, to_email: list, subject: str, html_body: str):
     message = MIMEMultipart()
     message['From'] = from_email
     message['To'] = ", ".join(to_email)
+    message['To'] = ", ".join(config.mail_aggiuntive)
     message['Subject'] = subject
 
     # Attach the plain text version
