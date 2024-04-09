@@ -53,3 +53,6 @@ inputs:
   smtp_from_email:
     description: "The mail from email address"
     required: false
+  mail_aggiuntiva:
+    description: "alcune mail aggiuntive a cui spedire l'alert"
+    required: false
