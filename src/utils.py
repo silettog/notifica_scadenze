@@ -79,7 +79,7 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate):
             mail_to.append(assignee['email'])
         #mail_to.append('silettog@gmail.com')
         #mail_to.append(mail_aggiuntive)
-        logger.info(f'MAIL A: {mail_to})
+        logger.info(f'MAIL A: {mail_to}')
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
 
@@ -102,7 +102,7 @@ def send_email(from_email: str, to_email: list, subject: str, html_body: str):
     message['From'] = from_email
     message['To'] = ", ".join(to_email)
     ###################################message['To'] = ", ".join(config.mail_aggiuntive)
-    logger.info(f'MAIL AGGIUNTIVE: ' {config.mail_aggiuntive})
+    logger.info(f'MAIL AGGIUNTIVE:  {config.mail_aggiuntive}')
     message['Subject'] = subject
 
     # Attach the plain text version
