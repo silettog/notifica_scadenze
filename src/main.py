@@ -136,7 +136,7 @@ def notify_missing_duedate():
             # Prepare the email content
             subject, message, to = utils.prepare_missing_duedate_email_message(
                 issue=issue,
-                assignees=assignees
+                assignees=assignees,
                 mail_aggiuntive=config.mail_aggiuntive
             )
 
