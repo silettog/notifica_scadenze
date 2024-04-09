@@ -42,7 +42,7 @@ def prepare_expiring_issue_comment(issue: dict, assignees: dict, duedate):
     return comment
 
 
-def prepare_missing_duedate_email_message(issue, assignees, mail_aggiuntive):
+def prepare_missing_duedate_email_message(issue, assignees):
     """
     Prepare the email message, subject and mail_to addresses
     """
@@ -66,7 +66,7 @@ def prepare_missing_duedate_email_message(issue, assignees, mail_aggiuntive):
     return [subject, message, mail_to]
 
 
-def prepare_expiring_issue_email_message(issue, assignees, duedate, mail_aggiuntive):
+def prepare_expiring_issue_email_message(issue, assignees, duedate):
     """
     Prepare the email message, subject and mail_to addresses
     """
