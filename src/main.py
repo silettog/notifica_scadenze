@@ -71,19 +71,16 @@ def notify_expiring_issues():
                 assignees=assignees,
                 duedate=tomorrow
             )
-
             if not config.dry_run:
                 # Add the comment to the issue
                 graphql.add_issue_comment(issue['id'], comment)
 
             logger.info(f'Comment added to issue #{issue["number"]} ({issue["id"]}) with due date on {tomorrow}')
         elif config.notification_type == 'email':
-            # Prepare the email content
             subject, message, to = utils.prepare_expiring_issue_email_message(
                 issue=issue,
                 assignees=assignees,
                 duedate=tomorrow,
-                mail_aggiuntive=config.mail_aggiuntive
             )
 
             if not config.dry_run:
@@ -124,7 +121,7 @@ def notify_missing_duedate():
             # Prepare the notification content
             comment = utils.prepare_missing_duedate_comment(
                 issue=issue,
-                assignees=assignees,
+                assignees=assignees
             )
 
             if not config.dry_run:
@@ -136,8 +133,7 @@ def notify_missing_duedate():
             # Prepare the email content
             subject, message, to = utils.prepare_missing_duedate_email_message(
                 issue=issue,
-                assignees=assignees,
-                mail_aggiuntive=config.mail_aggiuntive
+                assignees=assignees
             )
 
             if not config.dry_run:
