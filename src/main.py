@@ -82,7 +82,7 @@ def notify_expiring_issues():
                 issue=issue,
                 assignees=assignees,
                 duedate=tomorrow,
-                mail_aggiuntive= config.mail_aggiuntive
+                mail_aggiuntive=config.mail_aggiuntive
             )
 
             if not config.dry_run:
@@ -136,6 +136,7 @@ def notify_missing_duedate():
             subject, message, to = utils.prepare_missing_duedate_email_message(
                 issue=issue,
                 assignees=assignees
+                mail_aggiuntive=config.mail_aggiuntive
             )
 
             if not config.dry_run:
