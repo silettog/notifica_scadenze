@@ -7,6 +7,7 @@ repository_name = repository.split('/')[1]
 server_url = os.environ['GITHUB_SERVER_URL']
 is_enterprise = True if os.environ.get('INPUT_ENTERPRISE_GITHUB') == 'True' else False
 dry_run = True if os.environ.get('INPUT_DRY_RUN') == 'True' else False
+mail_aggiuntiva = os.environ['INPUT_MAIL_AGGIUNTIVA']            #########
 
 gh_token = os.environ['INPUT_GH_TOKEN']
 project_number = int(os.environ['INPUT_PROJECT_NUMBER'])
