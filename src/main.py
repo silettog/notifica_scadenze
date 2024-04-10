@@ -64,7 +64,7 @@ def notify_expiring_issues():
         logger.info(f'{issue} - Data di oggi: {datetime.now().date()}')
         logger.info(f'{issue} - delta-time: {duedate_obj - datetime.now().date()}')
         #####################################################################
-        if duedate_obj - datetime.now().date() <= timedelta(days=config.giorni_preavviso)
+        if duedate_obj - datetime.now().date() > timedelta(days=config.giorni_preavviso):
         #if duedate_obj != tomorrow:
             continue
 
