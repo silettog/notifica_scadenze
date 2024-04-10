@@ -57,6 +57,13 @@ def notify_expiring_issues():
         duedate_obj = datetime.strptime(duedate, "%Y-%m-%d").date()
 
         # Check if the project item is due soon or not
+        ####################################################################
+        logger.info(f'data consegna-duedate: {duedate_obj}')
+        logger.info(f'intervallo preavviso: {config.giorni_preavviso}')
+        logger.info(f'Data di oggi: {datetime.now().date()}
+        logger.info(f'delta-time: {duedate_obj - datetime.now().date()}
+        #####################################################################
+        
         if duedate_obj != tomorrow:
             continue
 
