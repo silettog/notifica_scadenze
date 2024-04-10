@@ -58,13 +58,14 @@ def notify_expiring_issues():
 
         # Check if the project item is due soon or not
         ####################################################################
-        logger.info(f'data consegna-duedate: {duedate_obj}')
-        logger.info(f'intervallo preavviso: {config.giorni_preavviso}')
-        logger.info(f'Data di oggi: {datetime.now().date()}')
-        logger.info(f'delta-time: {duedate_obj - datetime.now().date()}')
+        logger.info(f'{issue} - data consegna-duedate: {duedate_obj}')
+        logger.info(f'{issue} - intervallo preavviso: {config.giorni_preavviso}')
+        logger.info(f'{issue} - intervallo preavviso: {timedelta(days=config.giorni_preavviso)}')
+        logger.info(f'{issue} - Data di oggi: {datetime.now().date()}')
+        logger.info(f'{issue} - delta-time: {duedate_obj - datetime.now().date()}')
         #####################################################################
-        
-        if duedate_obj != tomorrow:
+        if duedate_obj - datetime.now().date() <= timedelta(days=config.giorni_preavviso)
+        #if duedate_obj != tomorrow:
             continue
 
         # Get the list of assignees
