@@ -59,7 +59,7 @@ def prepare_missing_duedate_email_message(issue, assignees):
 
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
-        message = f'Questa issue non ha un responsabile! \
+        message = f'Questa issue non ha un responsabile!' \
               f'<br>Per favore setta una scadenza (due date) per questa issue.' \
               f'<br><br>{issue["url"]}'
 
