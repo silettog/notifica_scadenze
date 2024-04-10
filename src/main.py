@@ -59,6 +59,7 @@ def notify_expiring_issues():
         # Check if the project item is due soon or not
         ####################################################################
         logger.info(f' ***** {projectNodes} ')
+        logger.info(f' ***** PROGETTO: {issue['projectItems']['nodes']['project']['title']}')
         logger.info(f' ***** Data consegna-duedate: {duedate_obj}')
         logger.info(f' ***** Intervallo preavviso: {config.giorni_preavviso}')
         logger.info(f' ***** Intervallo preavviso: {timedelta(days=config.giorni_preavviso)}')
