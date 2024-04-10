@@ -60,8 +60,8 @@ def notify_expiring_issues():
         ####################################################################
         logger.info(f'data consegna-duedate: {duedate_obj}')
         logger.info(f'intervallo preavviso: {config.giorni_preavviso}')
-        logger.info(f'Data di oggi: {datetime.now().date()}
-        logger.info(f'delta-time: {duedate_obj - datetime.now().date()}
+        logger.info(f'Data di oggi: {datetime.now().date()}')
+        logger.info(f'delta-time: {duedate_obj - datetime.now().date()}')
         #####################################################################
         
         if duedate_obj != tomorrow:
