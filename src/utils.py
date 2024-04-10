@@ -49,14 +49,17 @@ def prepare_missing_duedate_email_message(issue, assignees):
         for assignee in assignees:
             _assignees += f'@{assignee["name"]} '
             mail_to.append(assignee['email'])
+        #####################################   MESSAGGIO   ######################### 
         message = f'Assignees: {_assignees}' \
-          f'<br>Per favore setta una scadenza (due date) per questa issue.' \
+          f'<br>La issue \"{issue["title"]}\" non ha una scadenza'\
+          f'<br> Per favore setta una scadenza (\"due date\") per questa issue sul progetto.' \
           f'<br><br>{issue["url"]}'
 
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
-        message = f'Questa issue non ha un responsabile!' \
-              f'<br>Per favore setta una scadenza (due date) per questa issue.' \
+        #####################################   MESSAGGIO   ######################### 
+        message = f'La issue \"{issue["title"]}\" non ha un responsabile' \
+              f'<br>Per favore setta un responsabile (\"assignee\").' \
               f'<br><br>{issue["url"]}'
 
     return [subject, message, mail_to]
@@ -76,9 +79,9 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate):
         logger.info(f'MAIL A: {mail_to}')
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
-    #####################################   MESSAGGIO   ######################### ho aggiunto  {issue["title"]} 
+    #####################################   MESSAGGIO   #########################  
     message = f'Assignees: {_assignees}' \
-              f'<br>La issue {issue["title"]} deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}' \
+              f'<br>La issue \"{issue["title"]}\" deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}' \
               f'<br><br>{issue["url"]}'
 
     return [subject, message, mail_to]
@@ -96,7 +99,8 @@ def send_email(from_email: str, to_email: list, subject: str, html_body: str):
 
     logger.info(f'MESSAGE-TO:  {to_email}')
     logger.info(f'MAIL AGGIUNTIVE:  {config.mail_aggiuntive}')
-    
+
+    #####################################   MESSAGGIO   ######################### 
     message = MIMEMultipart()
     message['From'] = from_email
     message['To'] = ", ".join(to_email)
