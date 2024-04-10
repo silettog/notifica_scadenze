@@ -10,7 +10,6 @@ def prepare_missing_duedate_comment(issue: dict, assignees: dict):
     """
     Prepare the comment from the given arguments and return it
     """
-
     comment = ''
     if assignees:
         for assignee in assignees:
@@ -20,7 +19,6 @@ def prepare_missing_duedate_comment(issue: dict, assignees: dict):
 
     comment += f'Kindly set the `Due Date` for this issue.'
     logger.info(f'Issue {issue["title"]} | {comment}')
-
     return comment
 
 
@@ -28,7 +26,6 @@ def prepare_expiring_issue_comment(issue: dict, assignees: dict, duedate):
     """
     Prepare the comment from the given arguments and return it
     """
-
     comment = ''
     if assignees:
         for assignee in assignees:
@@ -38,7 +35,6 @@ def prepare_expiring_issue_comment(issue: dict, assignees: dict, duedate):
 
     comment += f'Questa issue deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}'
     logger.info(f'Issue {issue["title"]} | {comment}')
-
     return comment
 
 
