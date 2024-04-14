@@ -33,6 +33,14 @@ def get_repo_issues(owner, repository, duedate_field_name, task_status_field_nam
                         date
                       }
                     }
+                    #######################################
+                    fieldValueByName(name: $status) {{
+                      ... on ProjectV2ItemFieldTextValue {{
+                        id
+                        text
+                      }}
+                    }}
+                    #######################################
                   }
                 }
               }
@@ -138,6 +146,7 @@ def get_project_issues(owner, owner_type, project_number, duedate_field_name, ta
         'projectNumber': project_number,
         ##############################'projectTitle': project_title,
         'duedate': duedate_field_name,
+        'task_status'= task_status_field_name,
         'after': after
     }
 
