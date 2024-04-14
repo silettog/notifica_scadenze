@@ -4,9 +4,9 @@ import requests
 import config
 
 
-def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=None, task_status_field_name):
+def get_repo_issues(owner, repository, duedate_field_name, task_status_field_name, after=None, issues=None):
     query = """
-    query GetRepoIssues($owner: String!, $repo: String!, $duedate: String!, $after: String) {
+    query GetRepoIssues($owner: String!, $repo: String!, $duedate: String!, $after: String, $status: String) {
           repository(owner: $owner, name: $repo) {
             issues(first: 100, after: $after, states: [OPEN]) {
               nodes {
@@ -79,7 +79,7 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
     return issues
 
 
-def get_project_issues(owner, owner_type, project_number, duedate_field_name, filters=None, after=None, issues=None, task_status_field_name):
+def get_project_issues(owner, owner_type, project_number, duedate_field_name, task_status_field_name, filters=None, after=None, issues=None):
     query = f"""
     query GetProjectIssues($owner: String!, $projectNumber: Int!, $duedate: String!, $after: String, $status: String)  {{
           {owner_type}(login: $owner) {{
