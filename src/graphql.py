@@ -4,7 +4,7 @@ import requests
 import config
 
 
-def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=None):
+def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=None, task_status_field_name):
     query = """
     query GetRepoIssues($owner: String!, $repo: String!, $duedate: String!, $after: String) {
           repository(owner: $owner, name: $repo) {
@@ -79,9 +79,9 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
     return issues
 
 
-def get_project_issues(owner, owner_type, project_number, duedate_field_name, filters=None, after=None, issues=None):
+def get_project_issues(owner, owner_type, project_number, duedate_field_name, filters=None, after=None, issues=None, task_status_field_name):
     query = f"""
-    query GetProjectIssues($owner: String!, $projectNumber: Int!, $duedate: String!, $after: String)  {{
+    query GetProjectIssues($owner: String!, $projectNumber: Int!, $duedate: String!, $after: String, $status: String)  {{
           {owner_type}(login: $owner) {{
             projectV2(number: $projectNumber) {{
               id
@@ -96,6 +96,14 @@ def get_project_issues(owner, owner_type, project_number, duedate_field_name, fi
                       date
                     }}
                   }}
+                  #######################################
+                  fieldValueByName(name: $status) {{
+                    ... on ProjectV2ItemFieldTextValue {{
+                      id
+                      text
+                    }}
+                  }}
+                  #######################################
                   content {{
                     ... on Issue {{
                       id
@@ -128,6 +136,7 @@ def get_project_issues(owner, owner_type, project_number, duedate_field_name, fi
     variables = {
         'owner': owner,
         'projectNumber': project_number,
+        ##############################'projectTitle': project_title,
         'duedate': duedate_field_name,
         'after': after
     }
