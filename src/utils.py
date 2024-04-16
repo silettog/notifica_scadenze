@@ -19,6 +19,7 @@ def prepare_missing_duedate_comment(issue: dict, assignees: dict):
 
     comment += f'Kindly set the `Due Date` for this issue.'
     logger.info(f'Issue {issue["title"]} | {comment}')
+    logger.info(f'***Esco da utils.prepare_missing_duedate_comment ***')
     return comment
 
 
@@ -34,7 +35,7 @@ def prepare_expiring_issue_comment(issue: dict, assignees: dict, duedate):
         logger.info(f'No assignees found for issue #{issue["number"]}')
 
     comment += f'Questa issue deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}'
-    logger.info(f'Issue {issue["title"]} | {comment}')
+    logger.info(f'***Esco da utils.prepare_expiring_issue_comment *** Issue {issue["title"]} | {comment}')
     return comment
 
 
@@ -61,7 +62,7 @@ def prepare_missing_duedate_email_message(issue, assignees):
         message = f'La issue \"{issue["title"]}\" non ha un responsabile' \
               f'<br>Per favore setta un responsabile (\"assignee\").' \
               f'<br><br>{issue["url"]}'
-
+    logger.info(f'***esco da utils.prepare_missing_duedate_email_message*** {subject} * {message} * {mail_to}')
     return [subject, message, mail_to]
 
 
@@ -84,6 +85,7 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate):
               f'<br>La issue \"{issue["title"]}\" deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}' \
               f'<br><br>{issue["url"]}'
 
+    logger.info(f'***esco da utils.prepare_expiring_issue_email_message*** {subject} * {message} * {mail_to}')
     return [subject, message, mail_to]
 
 
