@@ -83,7 +83,9 @@ def get_repo_issues(owner, repository, duedate_field_name, task_status_field_nam
             issues=issues,
             duedate_field_name=duedate_field_name
         )
-
+    logger.info(f' ***** {owner} ')
+    logger.info(f' ***** {repository} ')
+    logger.info(f' ***** {issues} ')
     return issues
 
 
