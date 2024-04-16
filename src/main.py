@@ -13,7 +13,7 @@ def notify_expiring_issues():
             owner_type=config.repository_owner_type,
             project_number=config.project_number,
             duedate_field_name=config.duedate_field_name,
-            task_status_field_name=config.task_status_field_name,
+            #task_status_field_name=config.task_status_field_name,
             filters={'open_only': True}
         )
     else:
@@ -22,7 +22,7 @@ def notify_expiring_issues():
             owner=config.repository_owner,
             repository=config.repository_name,
             duedate_field_name=config.duedate_field_name,
-            task_status_field_name=config.task_status_field_name
+            #task_status_field_name=config.task_status_field_name
         )
 
     # Check if there are issues available
