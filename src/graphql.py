@@ -1,6 +1,6 @@
 import requests
 import config
-
+from logger import logger
 
 def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=None):
     query = """
