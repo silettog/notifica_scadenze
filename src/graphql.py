@@ -10,7 +10,14 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
               nodes {
                 id
                 title
+                body
                 number
+                url
+                labels(first 5) {
+                    nodes {
+                        name
+                    }
+                }
                 assignees(first:100) {
                   nodes {
                     name
