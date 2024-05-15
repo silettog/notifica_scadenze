@@ -54,7 +54,8 @@ def prepare_missing_duedate_email_message(issue, assignees):
         message = f'Assignees: {_assignees}' \
           f'<br>La issue \"{issue["title"]}\" non ha una scadenza'\
           f'<br> Per favore setta una scadenza (\"due date\") per questa issue sul progetto.' \
-          f'<br><br>{issue["url"]}'
+          f'<br><br>{issue["url"]}'\
+          f'<br><br>{issue["body"]}'
 
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
