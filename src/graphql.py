@@ -13,7 +13,7 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
                 body
                 number
                 url
-                labels(first 5) {
+                labels(first 10) {
                     nodes {
                         name
                     }
