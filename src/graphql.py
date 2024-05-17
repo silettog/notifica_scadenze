@@ -64,6 +64,10 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
         headers={"Authorization": f"Bearer {config.gh_token}"}
     )
 
+    logger.info(f'*******API ENDPOINT: {config.api_endpoint}')
+    logger.info(f'*******VARIABILI: {json}')
+    logger.info(f'*******HEADERS: {headers}')
+
     if response.json().get('errors'):
         print(response.json().get('errors'))
         errori=response.json().get('errors')
