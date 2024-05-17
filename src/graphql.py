@@ -1,6 +1,7 @@
 import requests
 import config
 from logger import logger
+from json.decoder import JSONDecodeError
 
 def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=None):
     query = """
@@ -13,7 +14,7 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
                 body
                 number
                 url
-                labels(first 10) {
+                labels(first: 10) {
                     nodes {
                         name
                     }
@@ -73,6 +74,7 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
 
     if response.json().get('errors'):
         print(response.json().get('errors'))
+        JSONDecodeError
         errori=response.json().get('errors')
         logger.info(f'*******ERRORI: {errori}')
 
