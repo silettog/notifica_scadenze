@@ -21,7 +21,7 @@ def notify_expiring_issues():
         issues = graphql.get_repo_issues(
             owner=config.repository_owner,
             repository=config.repository_name,
-            duedate_field_name=config.duedate_field_name,
+            duedate_field_name=config.duedate_field_name
             #task_status_field_name=config.task_status_field_name
         )
 
