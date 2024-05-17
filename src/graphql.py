@@ -85,7 +85,7 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
     if pageinfo.get('hasNextPage'):
         return get_repo_issues(owner=owner, repository=repository, after=pageinfo.get('endCursor'), issues=issues)
 
-    logger.info(f'*******Owner: {owner} Repository:{repository} Issues: {issues}')
+    #logger.info(f'*******Owner: {owner} Repository:{repository} Issues: {issues}')
     return issues
 
 
