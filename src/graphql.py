@@ -66,6 +66,8 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
 
     if response.json().get('errors'):
         print(response.json().get('errors'))
+        errori=response.json().get('errors')
+        logger.info(f'*******ERRORI: {errori}')
 
     pageinfo = response.json().get('data').get('repository').get('issues').get('pageInfo')
     if issues is None:
