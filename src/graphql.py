@@ -58,15 +58,18 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
         'after': after
     }
 
+    js={"query": query, "variables": variables}
+    hd={"Authorization": f"Bearer {config.gh_token}"}
+    
+    logger.info(f'*******API ENDPOINT: {config.api_endpoint}')
+    logger.info(f'*******VARIABILI: {js}')
+    logger.info(f'*******HEADERS: {hd}')
+    
     response = requests.post(
         config.api_endpoint,
         json={"query": query, "variables": variables},
         headers={"Authorization": f"Bearer {config.gh_token}"}
     )
-
-    logger.info(f'*******API ENDPOINT: {config.api_endpoint}')
-    logger.info(f'*******VARIABILI: {json}')
-    logger.info(f'*******HEADERS: {headers}')
 
     if response.json().get('errors'):
         print(response.json().get('errors'))
