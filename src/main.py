@@ -50,6 +50,11 @@ def notify_expiring_issues():
             projectItem = next((entry for entry in projectNodes if entry['project']['number'] == config.project_number),
                                None)
 
+        # Usa una protezione:
+        if projectItem is None or 'fieldValueByName' not in projectItem:
+            print("Salto un elemento vuoto o non valido...")
+            continue
+            
         # The fieldValueByName contains the date for the DueDate Field
         if not projectItem['fieldValueByName']:
             continue
