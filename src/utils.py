@@ -34,7 +34,7 @@ def prepare_expiring_issue_comment(issue: dict, assignees: dict, duedate):
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
 
-    comment += f'Questa issue deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}'
+    comment += f'Questa issue deve essere consegnata entro il: {duedate.strftime("%d/%m/%Y")}'
     logger.info(f'***Esco da utils.prepare_expiring_issue_comment *** Issue {issue["title"]} | {comment}')
     return comment
 
@@ -83,7 +83,7 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate):
         logger.info(f'No assignees found for issue #{issue["number"]}')
     #####################################   MESSAGGIO   #########################  
     message = f'Assignees: {_assignees}' \
-              f'<br>La issue \"{issue["title"]}\" deve essere consegnata entro il: {duedate.strftime("%b %d, %Y")}' \
+              f'<br>La issue \"{issue["title"]}\" deve essere consegnata entro il: {duedate.strftime("%d/%m/%Y")}' \
               f'<br><br>{issue["url"]}'
 
     logger.info(f'***esco da utils.prepare_expiring_issue_email_message*** {subject} * {message} * {mail_to}')
