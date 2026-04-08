@@ -142,7 +142,7 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate):
 
 """
 def prepare_expiring_issue_email_message(issue, assignees, duedate):
-    """    Prepare the email message, subject and mail_to addresses    """
+    #Prepare the email message, subject and mail_to addresses
     subject = f'Re: [{config.repository}] {issue["title"]} (#{issue["number"]})'
     _assignees = ''
     mail_to = []
