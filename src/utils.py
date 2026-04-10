@@ -61,10 +61,11 @@ def prepare_expiring_issue_comment(issue: dict, assignees: dict, duedate):
     logger.info(f'***Esco da utils.prepare_expiring_issue_comment *** Issue {issue["title"]} | {comment}')
     return comment
 
-
-def prepare_missing_duedate_email_message(issue, assignees):
+def prepare_expiring_issue_email_message(issue, assignees, duedate, project_name):
+    subject = f"[{project_name}] Scadenza imminente: {issue['title']}"
+#def prepare_missing_duedate_email_message(issue, assignees):
     ###    Prepara oggetto e corpo email per issue senza data    ###
-    subject = f'Re: [{config.repository}] {issue["title"]} (#{issue.get("number")})'
+#    subject = f'Re: [{config.repository}] {issue["title"]} (#{issue.get("number")})'
     _assignees = ''
     mail_to = []
     _assignees_names = []
