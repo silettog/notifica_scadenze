@@ -30,3 +30,6 @@ if notification_type == 'email':
     smtp_from_email = os.environ['INPUT_SMTP_FROM_EMAIL']
     mail_aggiuntive = os.environ['INPUT_MAIL_AGGIUNTIVE']
     giorni_preavviso = int(os.environ['INPUT_GIORNI_PREAVVISO'])
+    project_name = os.getenv('INPUT_PROJECT_NAME', 'Default Project')
+    excluded_statuses = os.getenv('INPUT_EXCLUDED_STATUSES', '')
+    task_status_field_name = os.getenv('INPUT_TASK_STATUS_FIELD_NAME', 'Status')
