@@ -59,3 +59,15 @@ inputs:
   giorni_preavviso:
     description: "giorni prima della scadenza (due date) quando mandare il preavviso"
     required: true
+  project_name:
+    description: 'Il nome del progetto recuperato dal workflow'
+    required: false
+    default: 'Progetto GitHub'
+  excluded_statuses:
+    description: 'Lista di status da ignorare (separati da virgola)'
+    required: false
+    default: ''
+  task_status_field_name:
+    description: 'Nome del campo Status nel progetto'
+    required: false
+    default: 'Status'
