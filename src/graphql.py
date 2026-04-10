@@ -3,7 +3,7 @@ import config
 from logger import logger
 from json.decoder import JSONDecodeError
 
-def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=None):
+def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=None, task_status_field_name=None):
     query = """
     query GetRepoIssues($owner: String!, $repo: String!, $duedate: String!, $after: String) {
           repository(owner: $owner, name: $repo) {
