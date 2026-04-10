@@ -114,6 +114,7 @@ def notify_expiring_issues():
 """
 
 def notify_expiring_issues():
+    """
     # 1. Carica la lista degli status da escludere dal config (es: stringa separata da virgole)
     excluded_statuses = [s.strip().lower() for s in getattr(config, 'excluded_statuses', "").split(",") if s]
 
@@ -130,7 +131,31 @@ def notify_expiring_issues():
     else:
         # ... (logica repo issues)
         pass
-
+    """
+    # 1. Inizializza SEMPRE la variabile all'inizio
+    issues = [] 
+    
+    try:
+        if config.is_enterprise:
+            issues = graphql.get_project_issues(
+                owner=config.repository_owner,
+                owner_type=config.repository_owner_type,
+                project_number=config.project_number,
+                duedate_field_name=config.duedate_field_name,
+                task_status_field_name=config.task_status_field_name,
+                filters={'open_only': True}
+            )
+        else:
+            # FIX: Aggiunta la virgola mancante tra duedate_field_name e task_status_field_name
+            issues = graphql.get_repo_issues(
+                owner=config.repository_owner,
+                repository=config.repository_name,
+                duedate_field_name=config.duedate_field_name, # <-- C'era una virgola mancante qui
+                task_status_field_name=config.task_status_field_name
+            )
+    except Exception as e:
+        logger.error(f"Errore durante il recupero delle issue: {e}")
+        return # Esci se c'è un errore critico
     if not issues:
         logger.info('No issues found')
         return
