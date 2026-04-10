@@ -6,9 +6,7 @@ from email.mime.text import MIMEText
 from logger import logger
 
 def clean_recipients(assignee_list, additional_mails_str):
-    """
-    Filtra e pulisce la lista dei destinatari rimuovendo duplicati e valori non validi.
-    """
+    ###    Filtra e pulisce la lista dei destinatari rimuovendo duplicati e valori non validi.    ###
     final_emails = set()
 
     # 1. Estrazione email dagli assegnatari (se presenti)
@@ -28,9 +26,7 @@ def clean_recipients(assignee_list, additional_mails_str):
     return list(final_emails)
 
 def prepare_missing_duedate_comment(issue: dict, assignees: list):
-    """
-    Prepare the comment from the given arguments and return it
-    """
+    ###    Prepare the comment from the given arguments and return it    ###
     comment = ''
     if assignees:
         for assignee in assignees:
@@ -48,9 +44,7 @@ def prepare_missing_duedate_comment(issue: dict, assignees: list):
 
 
 def prepare_expiring_issue_comment(issue: dict, assignees: dict, duedate):
-    """
-    Prepare the comment from the given arguments and return it
-    """
+    ###    Prepare the comment from the given arguments and return it    ###
     comment = ''
     if assignees:
         for assignee in assignees:
@@ -69,9 +63,7 @@ def prepare_expiring_issue_comment(issue: dict, assignees: dict, duedate):
 
 
 def prepare_missing_duedate_email_message(issue, assignees):
-    """
-    Prepara oggetto e corpo email per issue senza data
-    """
+    ###    Prepara oggetto e corpo email per issue senza data    ###
     subject = f'Re: [{config.repository}] {issue["title"]} (#{issue.get("number")})'
     _assignees = ''
     mail_to = []
@@ -84,37 +76,25 @@ def prepare_missing_duedate_email_message(issue, assignees):
                 mail_to.append(assignee['email'])
         assignees_str = ", ".join(_assignees_names)
 
-        #####################################   MESSAGGIO   ######################### 
+        #######   MESSAGGIO   #######
         message = (f'Assignees: {assignees_str}<br>'
                    f'La issue "{issue.get("title")}" non ha una scadenza prevista.<br>'
                    f'Per favore, imposta una "data consegna prevista" sul progetto.<br><br>'
                    f'<a href="{issue.get("url")}">Visualizza Issue su GitHub</a>')
-        
-        """
-        message = f'Assignees: {_assignees}' \
-          f'<br>La issue \"{issue["title"]}\" non ha una scadenza'\
-          f'<br> Per favore setta una scadenza (\"due date\") per questa issue sul progetto.' \
-          f'<br><br>{issue["url"]}'\
-          f'<br><br>{issue["body"]}'
-        """
+       
     else:
         logger.info(f'No assignees found for issue #{issue["number"]}')
-        #####################################   MESSAGGIO   ######################### 
+        #######   MESSAGGIO   ####### 
         message = (f'La issue "{issue.get("title")}" non ha un responsabile assegnato.<br>'
                    f'Per favore, assegna un responsabile ("assignee").<br><br>'
                    f'<a href="{issue.get("url")}">Visualizza Issue su GitHub</a>')
         
-        """
-        message = f'La issue \"{issue["title"]}\" non ha un responsabile' \
-              f'<br>Per favore setta un responsabile (\"assignee\").' \
-              f'<br><br>{issue["url"]}'
-        """
     logger.info(f'***esco da utils.prepare_missing_duedate_email_message*** {subject} * {message} * {mail_to}')
     return [subject, message, mail_to]
 
 
 def prepare_expiring_issue_email_message(issue, assignees, duedate):
-    """Prepara oggetto e corpo email per issue in scadenza."""
+    ###    Prepara oggetto e corpo email per issue in scadenza.    ###
     subject = f'Re: [{config.repository}] {issue.get("title")} (#{issue.get("number")})'
     mail_to = []
     _assignees_names = []
@@ -139,31 +119,8 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate):
 
 
 
-
-"""
-def prepare_expiring_issue_email_message(issue, assignees, duedate):
-    #Prepare the email message, subject and mail_to addresses
-    subject = f'Re: [{config.repository}] {issue["title"]} (#{issue["number"]})'
-    _assignees = ''
-    mail_to = []
-    if assignees:
-        for assignee in assignees:
-            _assignees += f'@{assignee["name"]} '
-            mail_to.append(assignee['email'])
-        logger.info(f'MAIL A: {mail_to}')
-    else:
-        logger.info(f'No assignees found for issue #{issue["number"]}')
-    #####################################   MESSAGGIO   #########################  
-    message = f'Assignees: {_assignees}' \
-              f'<br>La issue \"{issue["title"]}\" deve essere consegnata entro il: {duedate.strftime("%d/%m/%Y")}' \
-              f'<br><br>{issue["url"]}'
-
-    logger.info(f'***esco da utils.prepare_expiring_issue_email_message*** {subject} * {message} * {mail_to}')
-    return [subject, message, mail_to]
-"""
-
 def send_email(from_email: str, to_email: list, subject: str, html_body: str):
-    """Invia l'email utilizzando i parametri in config.py con gestione errori."""
+    ### Invia l'email utilizzando i parametri in config.py con gestione errori.     ###
     
     # 1. Pulizia e unione destinatari
     destinatari = clean_recipients(to_email, config.mail_aggiuntive)
@@ -201,36 +158,3 @@ def send_email(from_email: str, to_email: list, subject: str, html_body: str):
         logger.error(f"Errore durante l'invio email: {e}")
 
 
-
-"""
-def send_email(from_email: str, to_email: list, subject: str, html_body: str):
-    smtp_server = smtplib.SMTP(config.smtp_server, config.smtp_port)
-    smtp_server.starttls()
-    smtp_server.login(config.smtp_username, config.smtp_password)
-
-    # Create the plain text version of the email
-    text_body = html2text.html2text(html_body)
-
-    to_email.append(config.mail_aggiuntive)
-
-    logger.info(f'MESSAGE-TO:  {to_email}')
-    logger.info(f'MAIL AGGIUNTIVE:  {config.mail_aggiuntive}')
-
-    #####################################   MESSAGGIO   ######################### 
-    message = MIMEMultipart()
-    message['From'] = from_email
-    message['To'] = ", ".join(to_email)
-    message['Subject'] = subject
-
-    # Attach the plain text version
-    # message.attach(MIMEText(text_body, 'plain'))
-
-    # Attach the HTML version
-    message.attach(MIMEText(html_body, 'html'))
-
-    # Send the email
-    text = message.as_string()
-    smtp_server.sendmail(from_email, to_email, text)
-
-    smtp_server.quit()
-"""
