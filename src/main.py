@@ -4,7 +4,7 @@ import config
 import utils
 import graphql
 
-
+"""
 def notify_expiring_issues():
     if config.is_enterprise:
         # Get the issues
@@ -111,6 +111,79 @@ def notify_expiring_issues():
                 )
 
             logger.info(f'Email sent to {to} for issue #{issue["number"]} with due date on {duedate_obj}')
+"""
+
+def notify_expiring_issues():
+    # 1. Carica la lista degli status da escludere dal config (es: stringa separata da virgole)
+    excluded_statuses = [s.strip().lower() for s in getattr(config, 'excluded_statuses', "").split(",") if s]
+
+    if config.is_enterprise:
+        issues = graphql.get_project_issues(
+            owner=config.repository_owner,
+            owner_type=config.repository_owner_type,
+            project_number=config.project_number,
+            duedate_field_name=config.duedate_field_name,
+            # Passiamo anche il nome del campo status alla query GraphQL
+            task_status_field_name=config.task_status_field_name, 
+            filters={'open_only': True}
+        )
+    else:
+        # ... (logica repo issues)
+        pass
+
+    if not issues:
+        logger.info('No issues found')
+        return
+
+    for issue in issues:
+        if config.is_enterprise:
+            projectItem = issue
+            issue = issue['content']
+        else:
+            # ... (logica non enterprise)
+            projectNodes = issue['projectItems']['nodes']
+            projectItem = next((entry for entry in projectNodes if entry['project']['number'] == config.project_number), None)
+
+        if projectItem is None:
+            continue
+
+        # --- CONTROLLO STATUS ---
+        # Verifichiamo se l'issue ha uno status tra quelli esclusi
+        # Nota: 'statusValue' deve essere restituito dalla tua query in graphql.py
+        if 'statusValue' in projectItem and projectItem['statusValue']:
+            current_status = projectItem['statusValue'].get('name', '').lower()
+            if current_status in excluded_statuses:
+                logger.info(f"Salto issue #{issue['number']} perché lo status è '{current_status}'")
+                continue
+
+        # --- CONTROLLO DUEDATE ---
+        if not projectItem.get('fieldValueByName'):
+            continue
+
+        duedate = projectItem["fieldValueByName"]["date"]
+        duedate_obj = datetime.strptime(duedate, "%Y-%m-%d").date()
+
+        if duedate_obj - datetime.now().date() > timedelta(days=config.giorni_preavviso):
+            continue
+
+        assignees = issue['assignees']['nodes']
+
+        if config.notification_type == 'email':
+            # Passiamo il nome del progetto (recuperato dal config) alla funzione di preparazione
+            subject, message, to = utils.prepare_expiring_issue_email_message(
+                issue=issue,
+                assignees=assignees,
+                duedate=duedate_obj,
+                project_name=getattr(config, 'project_name', 'Project') # <--- PASSO IL NOME
+            )
+
+            if not config.dry_run:
+                utils.send_email(
+                    from_email=config.smtp_from_email,
+                    to_email=to,
+                    subject=subject,
+                    html_body=message
+                )
 
 
 def notify_missing_duedate():
