@@ -51,9 +51,9 @@ def notify_expiring_issues():
         is_in_excluded = current_status.lower() in excluded_statuses
         anomaly_msg = ""
         if state == 'CLOSED' and not is_in_excluded:
-            anomaly_msg = f"Incongruenza: Chiusa ma in colonna '{current_status}'"
+            anomaly_msg = f"Incongruenza: Issue Chiusa ma in stato '{current_status}'"
         elif state == 'OPEN' and is_in_excluded:
-            anomaly_msg = "Incongruenza: In colonna finale ma ancora Aperta"
+            anomaly_msg = f"Incongruenza: In Status '{current_status}' ma Issue ancora Aperta"
 
         # Dati per report integrale
         full_project_list.append({
@@ -150,23 +150,6 @@ def send_full_summary_email(to_emails, issue_list):
         logger.info(f"Report integrale inviato con successo a {to_emails}")
     else:
         logger.info(f"[DRY-RUN] Report integrale pronto per {to_emails}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
