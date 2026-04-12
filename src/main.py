@@ -96,14 +96,13 @@ def notify_expiring_issues():
     if extra_emails and full_project_list:
         send_full_summary_email(extra_emails, full_project_list)
 
-
 def send_full_summary_email(to_emails, issue_list):
     """
-    Invia un report completo di tutte le issue con intestazioni chiare.
+    Invia il report integrale con righe azzurre per i task attivi.
     """
+    excluded_statuses = [s.strip().lower() for s in getattr(config, 'excluded_statuses', "").split(",") if s.strip()]
     subject = f"📊 Report Integrale Progetto: {getattr(config, 'project_name', 'GitHub')}"
     
-    # Intestazione della tabella
     header_html = """
         <thead>
             <tr style='background-color: #f2f2f2; text-align: left;'>
@@ -118,53 +117,73 @@ def send_full_summary_email(to_emails, issue_list):
     
     rows = ""
     for i in issue_list:
-        bg = "background-color: #fff4f4;" if i['anomaly'] else "background-color: #ffffff;"
-        rows += f"<tr style='{bg}'>"
-        rows += f"<td style='border:1px solid #ddd; padding:8px;'>#{i['number']}</td>"
-        rows += f"<td style='border:1px solid #ddd; padding:8px;'>{i['title']}</td>"
-        rows += f"<td style='border:1px solid #ddd; padding:8px;'>{i['status']} ({i['state']})</td>"
-        rows += f"<td style='border:1px solid #ddd; padding:8px;'>{i['duedate']}</td>"
-        rows += f"<td style='border:1px solid #ddd; padding:8px; color:red; font-weight:bold;'>{i['anomaly']}</td>"
-        rows += "</tr>"
+        # Determiniamo il colore della riga
+        is_excluded = i['status'].lower() in excluded_statuses
+        
+        if i['anomaly']:
+            bg_color = "#fff4f4"  # Rosso chiaro per anomalie
+        elif not is_excluded:
+            bg_color = "#e1f5fe"  # Azzurro per task attivi (non esclusi)
+        else:
+            bg_color = "#ffffff"  # Bianco per task conclusi (esclusi)
 
-    html = f"""
+        rows += f"""
+            <tr style='background-color: {bg_color};'>
+                <td style='border:1px solid #ddd; padding:8px;'>#{i['number']}</td>
+                <td style='border:1px solid #ddd; padding:8px;'>{i['title']}</td>
+                <td style='border:1px solid #ddd; padding:8px;'>{i['status']} ({i['state']})</td>
+                <td style='border:1px solid #ddd; padding:8px;'>{i['duedate']}</td>
+                <td style='border:1px solid #ddd; padding:8px; color:red; font-weight:bold;'>{i['anomaly']}</td>
+            </tr>
+        """
+
+    full_html = f"""
 <html>
 <body style='font-family: sans-serif; color: #333;'>
     <h3 style='color: #0366d6;'>📊 Riepilogo Stato Progetto</h3>
-    <p>Ecco l'elenco completo delle attività presenti nel Project Board:</p>
     <table style='width:100%; border-collapse:collapse; font-size:13px;'>
         {header_html}
         <tbody>
             {rows}
         </tbody>
     </table>
-    <p style='margin-top: 20px; font-size: 11px; color: #777;'>
-        Report generato automaticamente il {datetime.now().strftime('%d/%m/%Y %H:%M')}.
-    </p>
 </body>
 </html>
 """.strip()
 
     if not config.dry_run:
-        utils.send_email(config.smtp_from_email, to_emails, subject, html)
-        logger.info(f"Report integrale inviato con successo a {to_emails}")
-    else:
-        logger.info(f"[DRY-RUN] Report integrale pronto per {to_emails}")
-
-
+        # Inviato solo come HTML
+        utils.send_email(config.smtp_from_email, to_emails, subject, full_html)
+        logger.info(f"Report integrale inviato a {to_emails}")
 
 def send_aggregated_emails(notifications_map):
+    """
+    Invia le notifiche di scadenza (solo HTML).
+    """
     for email, items in notifications_map.items():
-        rows = ""
+        subject = f"Notifica Scadenze ({len(items)} attività)"
+        html_rows = ""
         for i in items:
             color = "#D32F2F" if i['type'] == 'SCADUTA' else "#F57C00"
-            rows += f"<tr><td style='border-bottom:1px solid #ddd; padding:10px;'>"
-            rows += f"<b style='color:{color};'>[{i['type']}]</b> #{i['number']} - {i['title']}<br>"
-            rows += f"Scadenza: {i['duedate']} <br><span style='color:red;'>{i['anomaly']}</span>"
-            rows += f"</td><td style='text-align:right;'><a href='{i['url']}'>Apri</a></td></tr>"
+            anomaly_tag = f"<br><span style='color:red; font-size:11px;'>{i['anomaly']}</span>" if i['anomaly'] else ""
+            
+            html_rows += f"""
+                <tr>
+                    <td style='padding:10px; border-bottom:1px solid #ddd; background-color: #f9f9f9;'>
+                        <b style='color:{color};'>[{i['type']}]</b> #{i['number']} - {i['title']}{anomaly_tag}<br>
+                        <small>Data prevista: {i['duedate']}</small>
+                    </td>
+                    <td style='padding:10px; border-bottom:1px solid #ddd; text-align:right; background-color: #f9f9f9;'>
+                        <a href='{i['url']}' style='background:#0366d6; color:white; padding:5px 10px; text-decoration:none; border-radius:3px;'>Apri</a>
+                    </td>
+                </tr>
+            """
+
+        full_html = f"<html><body><table style='width:100%; border-collapse:collapse;'>{html_rows}</table></body></html>"
         
-        html = f"<html><body><table style='width:100%;'>{rows}</table></body></html>"
-        utils.send_email(config.smtp_from_email, [email], "Notifica Scadenze", html)
+        if not config.dry_run:
+            utils.send_email(config.smtp_from_email, [email], subject, full_html)
+
 
 def main():
     logger.info("--- Inizio Processo ---")
