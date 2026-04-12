@@ -11,7 +11,7 @@ def notify_expiring_issues():
     Ottimizzato per esecuzione settimanale (ogni venerdì).
     """
     # 1. PREPARAZIONE E RECUPERO DATI
-    excluded_statuses = [s.strip().lower() for s in getattr(config, 'excluded_statuses', "done").split(",") if s]
+    excluded_statuses = [s.strip().lower() for s in getattr(config, 'excluded_statuses', "done").split(",") if s.strip]
     issues = []
     
     try:
