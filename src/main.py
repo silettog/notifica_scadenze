@@ -58,10 +58,10 @@ def notify_expiring_issues():
             num = issue_data.get('number')
             title = issue_data.get('title')
 
-            # --- LOG DI DEBUG PER LA 42 ---
-            is_target = (num == 42)
+            # --- LOG DI DEBUG PER LA 51 ---
+            is_target = (num == 51)
             if is_target:
-                logger.info(f"--- ANALISI TARGET ISSUE #42 ---")
+                logger.info(f"--- ANALISI TARGET ISSUE #51 ---")
 
             # 1. Verifica Stato
             status_obj = projectItem.get('statusValue')
