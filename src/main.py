@@ -308,7 +308,7 @@ def notify_expiring_issues():
         assignees = issue_data.get('assignees', {}).get('nodes', [])
         
         if msg_type == "OVERDUE":
-            subject = f'⚠️ SOLLECITO RITARDO: Issue #{issue_data['number']}'
+            subject = f"⚠️ SOLLECITO RITARDO: Issue #{issue_data['number']}"
             message = f'''
             <html>
                 <body>
