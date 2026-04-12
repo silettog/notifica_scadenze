@@ -159,7 +159,7 @@ def send_email(from_email: str, to_email: list, subject: str, html_body: str):
         
         # Versione solo testo (opzionale, utile per filtri antispam)
         text_body = html2text.html2text(html_body)
-        message.attach(MIMEText(text_body, 'plain'))
+        #message.attach(MIMEText(text_body, 'plain'))
         message.attach(MIMEText(html_body, 'html'))
 
         # 4. Invio
