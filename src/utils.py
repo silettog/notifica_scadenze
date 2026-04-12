@@ -118,7 +118,7 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate, project_name
     #           f'Link: <a href="{issue.get("url")}">{issue.get("url")}</a>')
     
     # Esempio di corpo mail
-    message = f'
+    message = f"""
     <html>
         <body>
             <h2>Promemoria Scadenza</h2>
@@ -127,7 +127,7 @@ def prepare_expiring_issue_email_message(issue, assignees, duedate, project_name
             <p>Link alla issue: <a href="{issue['url']}">{issue['number']}</a></p>
         </body>
     </html>
-    '
+    """
     
     logger.info(f'***esco da utils.prepare_expiring_issue_email_message*** {subject} * {message} * {mail_to}')
     return [subject, message, mail_to]
