@@ -3,7 +3,7 @@ from collections import defaultdict
 from logger import logger
 import config
 import utils
-import graphql
+import github_api as graphql
 
 def notify_expiring_issues():
     """
