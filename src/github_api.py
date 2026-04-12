@@ -53,27 +53,33 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
         'after': after
     }
 
-    response = requests.post(
-        config.api_endpoint,
-        json={"query": query, "variables": variables},
-        headers={"Authorization": f"Bearer {config.gh_token}"}
-    )
-    
-    data = response.json()
-    if data.get('errors'):
-        logger.error(f"Errore GraphQL: {data['errors']}")
+    try:
+        response = requests.post(
+            config.api_endpoint,
+            json={"query": query, "variables": variables},
+            headers={"Authorization": f"Bearer {config.gh_token}"}
+        )
+        response.raise_for_status()
+        data = response.json()
+    except Exception as e:
+        logger.error(f"Errore connessione API: {e}")
         return issues or []
 
-    res_data = data.get('data').get('repository').get('issues')
-    pageinfo = res_data.get('pageInfo')
-    
+    if data.get('errors'):
+        logger.error(f"Errore GraphQL Repo: {data['errors']}")
+        return issues or []
+
+    # Accesso sicuro ai dati nidificati
+    res_data = data.get('data', {}).get('repository', {}).get('issues', {})
+    nodes = res_data.get('nodes', [])
+    pageinfo = res_data.get('pageInfo', {})
+
     if issues is None:
         issues = []
     
-    issues.extend(res_data.get('nodes'))
+    issues.extend(nodes)
 
     if pageinfo.get('hasNextPage'):
-        # CORREZIONE: Aggiunto duedate_field_name nella ricorsione
         return get_repo_issues(owner, repository, duedate_field_name, pageinfo.get('endCursor'), issues)
 
     return issues
@@ -81,27 +87,22 @@ def get_repo_issues(owner, repository, duedate_field_name, after=None, issues=No
 
 def get_project_issues(owner, owner_type, project_number, duedate_field_name, task_status_field_name, filters=None):
     """
-    Recupera le issue direttamente da un Project (V2), usato solitamente in ambiente Enterprise.
+    Versione corretta con gestione sicura delle variabili e delle graffe.
     """
-    # Logica di sicurezza: se owner_type è nullo o non è 'user', vai di 'organization'
-    # Questo corregge l'errore "Could not resolve to a User"
     clean_type = str(owner_type).lower().strip() if owner_type else "organization"
-    
-    if clean_type == "user":
-        type_query = "user"
-    else:
-        type_query = "organization"
+    type_query = "organization" if clean_type == "organization" else "user"
 
     logger.info(f"Eseguo query GraphQL su tipo: {type_query} per l'owner: {owner}")
     
+    # Usiamo le variabili GraphQL ($statusField e $duedate) invece di interpolare stringhe
     query = f"""
-    query($owner: String!, $number: Int!, $duedate: String!, $after: String) {{
+    query($owner: String!, $number: Int!, $duedate: String!, $statusField: String!, $after: String) {{
       {type_query}(login: $owner) {{
         projectV2(number: $number) {{
           items(first: 100, after: $after) {{
             nodes {{
               id
-              statusValue: fieldValueByName(name: "{task_status_field_name}") {{
+              statusValue: fieldValueByName(name: $statusField) {{
                 ... on ProjectV2ItemFieldSingleSelectValue {{
                   name
                 }}
@@ -141,6 +142,7 @@ def get_project_issues(owner, owner_type, project_number, duedate_field_name, ta
         "owner": owner,
         "number": int(project_number),
         "duedate": duedate_field_name,
+        "statusField": task_status_field_name,
         "after": None
     }
 
@@ -148,34 +150,47 @@ def get_project_issues(owner, owner_type, project_number, duedate_field_name, ta
     has_next_page = True
 
     while has_next_page:
-        response = requests.post(
-            config.api_endpoint,
-            json={"query": query, "variables": variables},
-            headers={"Authorization": f"Bearer {config.gh_token}"}
-        )
-        
-        data = response.json()
-        if data.get('errors'):
-            logger.error(f"Errore ProjectV2: {data['errors']}")
+        try:
+            response = requests.post(
+                config.api_endpoint,
+                json={"query": query, "variables": variables},
+                headers={"Authorization": f"Bearer {config.gh_token}"}
+            )
+            data = response.json()
+        except Exception as e:
+            logger.error(f"Errore chiamata ProjectV2: {e}")
             break
 
-        project_data = data.get('data').get(type_query).get('projectV2').get('items')
-        nodes = project_data.get('nodes')
+        if data.get('errors'):
+            logger.error(f"Errore GraphQL Project: {data['errors']}")
+            break
+
+        # NAVIGAZIONE SICURA (evita crash se il progetto non esiste)
+        res_data = data.get('data', {})
+        owner_data = res_data.get(type_query)
+        if not owner_data:
+            logger.error(f"Impossibile trovare l'owner '{owner}' di tipo '{type_query}'")
+            break
+            
+        project_v2 = owner_data.get('projectV2')
+        if not project_v2:
+            logger.error(f"Impossibile trovare il Progetto #{project_number} per {owner}")
+            break
+
+        items_data = project_v2.get('items', {})
+        nodes = items_data.get('nodes', [])
         
-        # Filtraggio base (Open issues only se richiesto)
         for n in nodes:
             content = n.get('content', {})
-            # Se filters['open_only'] è True, saltiamo le issue chiuse
             if filters and filters.get('open_only') and content.get('state') != 'OPEN':
                 continue
-            # Se filters['empty_duedate'] è True, prendiamo solo quelle senza data
             if filters and filters.get('empty_duedate'):
                 if n.get('fieldValueByName'): continue
             
             all_items.append(n)
 
-        page_info = project_data.get('pageInfo')
-        has_next_page = page_info.get('hasNextPage')
+        page_info = items_data.get('pageInfo', {})
+        has_next_page = page_info.get('hasNextPage', False)
         variables['after'] = page_info.get('endCursor')
 
     return all_items
