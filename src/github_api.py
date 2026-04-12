@@ -83,9 +83,11 @@ def get_project_issues(owner, owner_type, project_number, duedate_field_name, ta
     """
     Recupera le issue direttamente da un Project (V2), usato solitamente in ambiente Enterprise.
     """
-    # Determiniamo se il proprietario è un'organizzazione o un utente
-    is_org = str(owner_type).strip().lower() == "organization"
-    type_query = "organization" if is_org else "user"
+    # Gestione sicura del tipo: se è None o diverso da organization, usa user
+    # Ma se sappiamo che SITA è una org, forziamolo o validiamolo
+    current_type = str(owner_type).lower().strip() if owner_type else "organization"
+    
+    type_query = "organization" if current_type == "organization" else "user"
     
     query = f"""
     query($owner: String!, $number: Int!, $duedate: String!, $after: String) {{
