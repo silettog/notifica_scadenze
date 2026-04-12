@@ -4,115 +4,7 @@ import config
 import utils
 import graphql
 
-"""
-def notify_expiring_issues():
-    if config.is_enterprise:
-        # Get the issues
-        issues = graphql.get_project_issues(
-            owner=config.repository_owner,
-            owner_type=config.repository_owner_type,
-            project_number=config.project_number,
-            duedate_field_name=config.duedate_field_name,
-            #task_status_field_name=config.task_status_field_name,
-            filters={'open_only': True}
-        )
-    else:
-        # Get the issues
-        issues = graphql.get_repo_issues(
-            owner=config.repository_owner,
-            repository=config.repository_name,
-            duedate_field_name=config.duedate_field_name
-            #task_status_field_name=config.task_status_field_name
-        )
-
-    # Check if there are issues available
-    if not issues:
-        logger.info('No issues has been found')
-        return
-
-    # Get the date for tomorrow
-    #tomorrow = datetime.now().date() + timedelta(days=1)
-    tomorrow = datetime.now().date() + timedelta(days=config.giorni_preavviso)
-
-    # Loop through issues
-    for issue in issues:
-        if config.is_enterprise:
-            projectItem = issue
-            issue = issue['content']
-        else:
-            projectNodes = issue['projectItems']['nodes']
-
-            # If no project is assigned to the
-            if not projectNodes:
-                continue
-
-            # Check if the desire project is assigned to the issue
-            projectItem = next((entry for entry in projectNodes if entry['project']['number'] == config.project_number),
-                               None)
-
-        # Usa una protezione:
-        if projectItem is None or 'fieldValueByName' not in projectItem:
-            print("Salto un elemento vuoto o non valido...")
-            continue
-            
-        # The fieldValueByName contains the date for the DueDate Field
-        if not projectItem['fieldValueByName']:
-            continue
-
-        # Get the duedate value and convert it to date object
-        duedate = projectItem["fieldValueByName"]["date"]
-        duedate_obj = datetime.strptime(duedate, "%Y-%m-%d").date()
-
-        # Check if the project item is due soon or not
-        ####################################################################
-        logger.info(f' ***** {projectNodes} ')
-        #pippo=issue['projectItems']['nodes']['project']['title']
-        #logger.info(f' ***** PROGETTO: {pippo}')
-        logger.info(f' ***** Data consegna-duedate: {duedate_obj}')
-        logger.info(f' ***** Intervallo preavviso: {config.giorni_preavviso}')
-        logger.info(f' ***** Intervallo preavviso: {timedelta(days=config.giorni_preavviso)}')
-        logger.info(f' ***** Data di oggi: {datetime.now().date()}')
-        logger.info(f' ***** Delta-time: {duedate_obj - datetime.now().date()}')
-        #####################################################################
-        if duedate_obj - datetime.now().date() > timedelta(days=config.giorni_preavviso):
-        #if duedate_obj != tomorrow:
-            continue
-
-        # Get the list of assignees
-        assignees = issue['assignees']['nodes']
-
-        # Handle notification type
-        if config.notification_type == 'comment':
-            # Prepare the notification content
-            comment = utils.prepare_expiring_issue_comment(
-                issue=issue,
-                assignees=assignees,
-                duedate=duedate_obj
-            )
-            if not config.dry_run:
-                # Add the comment to the issue
-                graphql.add_issue_comment(issue['id'], comment)
-
-            logger.info(f'Comment added to issue #{issue["number"]} ({issue["id"]}) with due date on {duedate_obj}')
-        elif config.notification_type == 'email':
-            subject, message, to = utils.prepare_expiring_issue_email_message(
-                issue=issue,
-                assignees=assignees,
-                duedate=duedate_obj,
-            )
-
-            if not config.dry_run:
-                # Send the email
-                utils.send_email(
-                    from_email=config.smtp_from_email,
-                    to_email=to,
-                    subject=subject,
-                    html_body=message
-                )
-
-            logger.info(f'Email sent to {to} for issue #{issue["number"]} with due date on {duedate_obj}')
-"""
-
+'''
 def notify_expiring_issues():
     """
     # 1. Carica la lista degli status da escludere dal config (es: stringa separata da virgole)
@@ -209,6 +101,121 @@ def notify_expiring_issues():
                     subject=subject,
                     html_body=message
                 )
+'''
+
+
+from datetime import datetime, timedelta
+from logger import logger
+import config
+import utils
+import graphql
+
+def notify_expiring_issues():
+    # 1. Preparazione filtri e variabili iniziali
+    # Trasformiamo la stringa "done, closed" in una lista ['done', 'closed']
+    excluded_statuses = [s.strip().lower() for s in getattr(config, 'excluded_statuses', "done").split(",") if s]
+    issues = []
+    
+    # 2. Recupero delle issue tramite GraphQL
+    try:
+        if config.is_enterprise:
+            issues = graphql.get_project_issues(
+                owner=config.repository_owner,
+                owner_type=config.repository_owner_type,
+                project_number=config.project_number,
+                duedate_field_name=config.duedate_field_name,
+                task_status_field_name=config.task_status_field_name,
+                filters={'open_only': True}
+            )
+        else:
+            issues = graphql.get_repo_issues(
+                owner=config.repository_owner,
+                repository=config.repository_name,
+                duedate_field_name=config.duedate_field_name,
+                task_status_field_name=config.task_status_field_name
+            )
+    except Exception as e:
+        logger.error(f"Errore critico durante il recupero delle issue: {e}")
+        return
+
+    if not issues:
+        logger.info('Nessuna issue trovata.')
+        return
+
+    # 3. Ciclo di elaborazione e filtraggio
+    for item in issues:
+        # Gestione diversa della struttura dati tra Enterprise e Repo standard
+        if config.is_enterprise:
+            projectItem = item
+            issue_data = item['content']
+        else:
+            projectNodes = item.get('projectItems', {}).get('nodes', [])
+            projectItem = next((entry for entry in projectNodes if entry['project']['number'] == config.project_number), None)
+            issue_data = item
+
+        if not projectItem:
+            continue
+
+        # --- FILTRO STATUS ---
+        # Salta se lo status è tra quelli esclusi (es. "done")
+        if 'statusValue' in projectItem and projectItem['statusValue']:
+            current_status = projectItem['statusValue'].get('name', '').lower()
+            if current_status in excluded_statuses:
+                logger.info(f"Salto issue #{issue_data['number']} perché lo status è '{current_status}'")
+                continue
+
+        # --- FILTRO DATA (DUEDATE) ---
+        if not projectItem.get('fieldValueByName') or not projectItem['fieldValueByName'].get('date'):
+            continue
+
+        duedate_str = projectItem["fieldValueByName"]["date"]
+        duedate_obj = datetime.strptime(duedate_str, "%Y-%m-%d").date()
+        today = datetime.now().date()
+        
+        # Calcolo della differenza (Delta)
+        days_until_due = (duedate_obj - today).days
+
+        # Logica: 
+        # - Deve essere entro i giorni di preavviso (es. <= 3)
+        # - Non deve essere già scaduta da troppo tempo (es. >= 0, o togli se vuoi notificare anche i ritardi)
+        if days_until_due > config.giorni_preavviso or days_until_due < 0:
+            continue
+
+        # 4. Invio della Notifica
+        assignees = issue_data.get('assignees', {}).get('nodes', [])
+        
+        if config.notification_type == 'email':
+            # Nota: Ho usato i tripli apici per la stringa HTML come discusso prima
+            subject, message, to = utils.prepare_expiring_issue_email_message(
+                issue=issue_data,
+                assignees=assignees,
+                duedate=duedate_obj,
+                project_name=getattr(config, 'project_name', 'Project')
+            )
+
+            if not config.dry_run:
+                utils.send_email(
+                    from_email=config.smtp_from_email,
+                    to_email=to,
+                    subject=subject,
+                    html_body=message
+                )
+                logger.info(f"Email inviata per issue #{issue_data['number']} a {to}")
+            else:
+                logger.info(f"[DRY-RUN] Mail pronta per #{issue_data['number']} (scade tra {days_until_due} giorni)")
+
+        elif config.notification_type == 'comment':
+            comment = utils.prepare_expiring_issue_comment(
+                issue=issue_data,
+                assignees=assignees,
+                duedate=duedate_obj
+            )
+            if not config.dry_run:
+                graphql.add_issue_comment(issue_data['id'], comment)
+                logger.info(f"Commento aggiunto alla issue #{issue_data['number']}")
+
+
+
 
 
 def notify_missing_duedate():
